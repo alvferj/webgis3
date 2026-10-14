@@ -11,9 +11,27 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; }
         #map { height: 100vh; width: 100vw; }
+        /* Estilo para um painel informativo opcional */
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+
+    <div class="info-panel">
+        <strong>Comparação WebGIS</strong><br>
+        Esquerda: DataGeo SP | Direita: ArcGIS
+    </div>
 
     <div id="map"></div>
 
@@ -24,7 +42,7 @@
     <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
 
     <script>
-        // Centralizado nas coordenadas solicitadas com zoom 11
+        // Inicialização do mapa com coordenadas padrão (serão ajustadas se o GeoJSON carregar)
         var map = L.map('map').setView([-22.1468, -48.9995], 11);
 
         // Mapa base de fundo (OpenStreetMap)
@@ -33,10 +51,9 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // 1. Lado Esquerdo: WMS DataGeo SP
+        // 1. Lado Esquerdo: WMS DataGeo SP (Erro de quebra de linha corrigido)
         var wmsEsquerda = L.tileLayer.wms('https://datageo.ambiente.sp.gov.br/geoimage/datageoimg/ows', {
-            layers: 'ORTOFOTOS_EMPLASA_2010
-', // Substitua pelo nome técnico da camada no DataGeo
+            layers: 'ORTOFOTOS_EMPLASA_2010', 
             format: 'image/png',
             transparent: true,
             version: '1.3.0',
@@ -51,16 +68,16 @@
         }).addTo(map);
 
         // Ferramenta Swipe (Lado a lado)
-        L.control.sideBySide(wmsEsquerda, wmsDireita).addTo(map);
+        var sideBySideControl = L.control.sideBySide(wmsEsquerda, wmsDireita).addTo(map);
 
-        // 3. Carregamento opcional do ficheiro area.geojson (requer servidor local ativo)
+        // 3. Carregamento do ficheiro area.geojson com ajuste automático de zoom
         fetch('area.geojson')
             .then(response => {
                 if (!response.ok) throw new Error('Erro ao aceder ao ficheiro geojson');
                 return response.json();
             })
             .then(data => {
-                L.geoJSON(data, {
+                var camadaGeoJson = L.geoJSON(data, {
                     style: {
                         color: '#ff7800',
                         weight: 3,
@@ -74,6 +91,9 @@
                         }
                     }
                 }).addTo(map);
+
+                // Ajusta o mapa automaticamente para os limites do GeoJSON carregado
+                map.fitBounds(camadaGeoJson.getBounds());
             })
             .catch(error => console.warn('Aviso do GeoJSON: Utilize um servidor local (ex: Live Server) para carregar o ficheiro.', error));
     </script>

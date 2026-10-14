@@ -30,11 +30,12 @@
         }).addTo(map);
 
         // Camada WMS da Esquerda (Exemplo: IBGE Mosaico ou feições)
-        var wmsEsquerda = L.tileLayer.wms('https://geoservicos.ibge.gov.br/wms/mapa_interativo', {
+        var wmsEsquerda = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             layers: '0', // Substitua pelo nome da camada do servidor WMS
             format: 'image/png',
             transparent: true,
-            attribution: 'IBGE WMS'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd'
         }).addTo(map);
 
         // Camada WMS da Direita (Exemplo: Outro ano ou outra base WMS)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGIS - Comparação DataGeo vs ArcGIS</title>
+    <title>WebGIS - Comparação DataGeo vs ArcGIS Atualizado</title>
     
     <!-- CSS do Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -26,7 +26,7 @@
             font-size: 14px;
         }
 
-        /* Controlo Deslizante (Swipe) Personalizado Nativamente */
+        /* Controlo Deslizante (Swipe) Personalizado */
         .swipe-container {
             position: absolute;
             bottom: 30px;
@@ -59,18 +59,18 @@
 
     <div class="info-panel">
         <strong>Comparação WebGIS</strong><br>
-        DataGeo SP vs ArcGIS Satellite
+        DataGeo SP vs ArcGIS Satélite (Mais Recente)
     </div>
 
     <div id="map"></div>
 
-    <!-- Barra de Controlo Deslizante NATIVA (Substitui o plugin com falhas) -->
+    <!-- Barra de Controlo Deslizante NATIVA -->
     <div class="swipe-container">
         <label for="rangeSwipe"><strong>Controlo de Transparência / Camada</strong></label>
         <input type="range" id="rangeSwipe" min="0" max="1" step="0.05" value="1">
         <div class="swipe-labels">
             <span>DataGeo (2010)</span>
-            <span>ArcGIS Satélite</span>
+            <span>ArcGIS Atual</span>
         </div>
     </div>
 
@@ -87,10 +87,11 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // 1. Camada Direita de Fundo: ArcGIS World Imagery
+        // 1. Camada de Fundo Direita: ArcGIS World Imagery (Versão mais recente e detalhada com zoom estendido)
         var camadaDireita = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19,
-            attribution: 'Esri World Imagery'
+            maxZoom: 22,
+            maxNativeZoom: 19,
+            attribution: 'Esri World Imagery (Mais Recente)'
         }).addTo(map);
 
         // 2. Camada Esquerda (Superposta): WMS DataGeo SP
@@ -102,7 +103,7 @@
             attribution: 'DataGeo SP'
         }).addTo(map);
 
-        // Controlo interativo nativo para ajustar a opacidade da camada superior (Efeito de transição suave)
+        // Controlo interativo para ajustar a opacidade (transição suave)
         document.getElementById('rangeSwipe').addEventListener('input', function(e) {
             var valorOpacidade = parseFloat(e.target.value);
             camadaEsquerda.setOpacity(valorOpacidade);

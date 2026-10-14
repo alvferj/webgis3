@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebGIS - Comparação DataGeo vs ArcGIS</title>
     
+    <!-- CSS do Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- CSS do Side-by-Side -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.4.0/leaflet-side-by-side.min.css" />
 
     <style>
@@ -34,16 +36,18 @@
 
     <div id="map"></div>
 
-    <!-- Scripts do Leaflet e Leaflet-side-by-side -->
+    <!-- 1. JS Principal do Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- 2. JS do Side-by-Side corrigido (via jsDelivr) -->
     <script src="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.4.0/leaflet-side-by-side.min.js"></script>
 
     <script>
-        // Inicialização do mapa
+        // Inicialização do mapa centrado
         var map = L.map('map').setView([-22.1468, -48.9995], 11);
 
-        // Mapa base de fundo geral (OpenStreetMap) caso necessário
-        var osmBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // Mapa base de fundo geral (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 22,
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
@@ -57,16 +61,16 @@
             attribution: 'DataGeo SP'
         }).addTo(map);
 
-        // 2. Lado Direito: ArcGIS World Imagery convertido para TileLayer padrão (Compatível com o Swipe)
+        // 2. Lado Direito: ArcGIS World Imagery
         var wmsDireita = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 19,
             attribution: 'Esri World Imagery'
         }).addTo(map);
 
-        // 3. Ativar a Ferramenta Swipe (Lado a lado) de forma correta
+        // 3. Ativação da ferramenta Swipe (agora com o script devidamente carregado)
         var sideBySideControl = L.control.sideBySide(wmsEsquerda, wmsDireita).addTo(map);
 
-        // 4. Carregamento do ficheiro area.geojson com ajuste automático de zoom
+        // 4. Carregamento do ficheiro area.geojson (requer servidor local ativo)
         fetch('area.geojson')
             .then(response => {
                 if (!response.ok) throw new Error('Erro ao aceder ao ficheiro geojson');
@@ -88,10 +92,10 @@
                     }
                 }).addTo(map);
 
-                // Ajusta o mapa automaticamente para os limites do polígono GeoJSON
+                // Ajusta o zoom automaticamente para os limites do polígono
                 map.fitBounds(camadaGeoJson.getBounds());
             })
-            .catch(error => console.warn('Aviso do GeoJSON: Utilize um servidor local (ex: Live Server no VS Code) para carregar o ficheiro.', error));
+            .catch(error => console.warn('Aviso do GeoJSON: Utilize um servidor local (ex: Live Server no VS Code).', error));
     </script>
 
 </body>

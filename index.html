@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGIS - Comparação WMS com GeoJSON</title>
+    <title>WebGIS - Comparação DataGeo vs ArcGIS</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.4.0/leaflet-side-by-side.min.css" />
@@ -17,8 +17,11 @@
 
     <div id="map"></div>
 
+    <!-- Scripts do Leaflet e Leaflet-side-by-side -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.4.0/leaflet-side-by-side.min.js"></script>
+    <!-- Script do Esri Leaflet para suportar MapServer do ArcGIS -->
+    <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
 
     <script>
         // Centralizado nas coordenadas solicitadas com zoom 11
@@ -30,35 +33,34 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Camada WMS da Esquerda (Exemplo de WMS público do IBGE)
-        var wmsEsquerda = L.tileLayer.wms('https://geoservicos.ibge.gov.br/geoserver/wms', {
-            layers: 'Cidades', // Exemplo de camada do IBGE
+        // 1. Lado Esquerdo: WMS DataGeo SP
+        var wmsEsquerda = L.tileLayer.wms('https://datageo.ambiente.sp.gov.br/geoimage/datageoimg/ows', {
+            layers: 'ORTOFOTOS_EMPLASA_2010
+', // Substitua pelo nome técnico da camada no DataGeo
             format: 'image/png',
             transparent: true,
             version: '1.3.0',
-            attribution: 'IBGE'
+            attribution: 'DataGeo SP'
         }).addTo(map);
 
-        // Camada WMS da Direita (Substitua pela sua URL e camada real do GeoServer)
-        var wmsDireita = L.tileLayer.wms('https://wms.mma.gov.br/geoserver/wms', {
-            layers: 'mma:sua_camada_aqui', 
-            format: 'image/png',
-            transparent: true,
-            version: '1.3.0',
-            attribution: 'MMA'
+        // 2. Lado Direito: ArcGIS World Imagery (MapServer)
+        var wmsDireita = L.esri.tiledMapLayer({
+            url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+            maxZoom: 19,
+            attribution: 'Esri World Imagery'
         }).addTo(map);
 
-        // Ferramenta Swipe (Certifique-se de que ambas as camadas estão visíveis)
+        // Ferramenta Swipe (Lado a lado)
         L.control.sideBySide(wmsEsquerda, wmsDireita).addTo(map);
 
-        // Carregar o ficheiro area.geojson (Requer servidor local ativo)
+        // 3. Carregamento opcional do ficheiro area.geojson (requer servidor local ativo)
         fetch('area.geojson')
             .then(response => {
                 if (!response.ok) throw new Error('Erro ao aceder ao ficheiro geojson');
                 return response.json();
             })
             .then(data => {
-                var camadaGeoJson = L.geoJSON(data, {
+                L.geoJSON(data, {
                     style: {
                         color: '#ff7800',
                         weight: 3,
@@ -73,7 +75,7 @@
                     }
                 }).addTo(map);
             })
-            .catch(error => console.warn('Aviso do GeoJSON: Verifique se está a usar um servidor local (Live Server). Detalhes:', error));
+            .catch(error => console.warn('Aviso do GeoJSON: Utilize um servidor local (ex: Live Server) para carregar o ficheiro.', error));
     </script>
 
 </body>

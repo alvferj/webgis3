@@ -87,7 +87,7 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // 1. Camada de Fundo Direita: ArcGIS World Imagery (Versão mais recente e detalhada com zoom estendido)
+        // 1. Camada de Fundo Direita: ArcGIS World Imagery (Versão mais recente)
         var camadaDireita = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 22,
             maxNativeZoom: 19,
@@ -109,7 +109,7 @@
             camadaEsquerda.setOpacity(valorOpacidade);
         });
 
-        // 3. Carregamento do ficheiro area.geojson (requer servidor local ativo, ex: Live Server)
+        // 3. Carregamento do ficheiro area.geojson com o polígono sem preenchimento (apenas contorno)
         fetch('area.geojson')
             .then(response => {
                 if (!response.ok) throw new Error('Erro ao aceder ao ficheiro geojson');
@@ -118,11 +118,11 @@
             .then(data => {
                 var camadaGeoJson = L.geoJSON(data, {
                     style: {
-                        color: '#ff7800',
-                        weight: 3,
-                        opacity: 0.8,
-                        fillColor: '#ff7800',
-                        fillOpacity: 0.2
+                        color: '#ff7800',       // Cor da linha de contorno (Laranja)
+                        weight: 3,              // Espessura da linha
+                        opacity: 1,             // Opacidade da linha de contorno
+                        fillColor: 'transparent', // Sem cor de preenchimento
+                        fillOpacity: 0          // Preenchimento totalmente transparente
                     },
                     onEachFeature: function (feature, layer) {
                         if (feature.properties && feature.properties.nome) {

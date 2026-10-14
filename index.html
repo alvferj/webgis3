@@ -21,7 +21,7 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.4.0/leaflet-side-by-side.min.js"></script>
 
     <script>
-        // Centralizado nas coordenadas solicitadas (-22.1468, -48.9995) com zoom 11
+        // Centralizado nas coordenadas solicitadas com zoom 11
         var map = L.map('map').setView([-22.1468, -48.9995], 11);
 
         // Mapa base de fundo (OpenStreetMap)
@@ -30,51 +30,50 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Camada WMS da Esquerda
-        var wmsEsquerda = L.tileLayer.wms('https://wms.mma.gov.br/geoserver/wms', {
-            layers: 'mma:sua_camada_esquerda_aqui', // Substitua pelo serviço/camada desejada
+        // Camada WMS da Esquerda (Exemplo de WMS público do IBGE)
+        var wmsEsquerda = L.tileLayer.wms('https://geoservicos.ibge.gov.br/geoserver/wms', {
+            layers: 'Cidades', // Exemplo de camada do IBGE
             format: 'image/png',
             transparent: true,
             version: '1.3.0',
-            attribution: 'MMA WMS - Esquerda'
+            attribution: 'IBGE'
         }).addTo(map);
 
-        // Camada WMS da Direita
+        // Camada WMS da Direita (Substitua pela sua URL e camada real do GeoServer)
         var wmsDireita = L.tileLayer.wms('https://wms.mma.gov.br/geoserver/wms', {
-            layers: 'mma:sua_camada_direita_aqui', // Substitua pelo serviço/camada desejada
+            layers: 'mma:sua_camada_aqui', 
             format: 'image/png',
             transparent: true,
             version: '1.3.0',
-            attribution: 'MMA WMS - Direita'
+            attribution: 'MMA'
         }).addTo(map);
 
-        // Ferramenta Swipe para comparar as duas fontes WMS
+        // Ferramenta Swipe (Certifique-se de que ambas as camadas estão visíveis)
         L.control.sideBySide(wmsEsquerda, wmsDireita).addTo(map);
 
-        // Função para carregar e adicionar o ficheiro area.geojson ao mapa
+        // Carregar o ficheiro area.geojson (Requer servidor local ativo)
         fetch('area.geojson')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Erro ao aceder ao ficheiro geojson');
+                return response.json();
+            })
             .then(data => {
                 var camadaGeoJson = L.geoJSON(data, {
                     style: {
-                        color: '#ff7800',      // Cor do contorno
-                        weight: 3,             // Espessura da linha
+                        color: '#ff7800',
+                        weight: 3,
                         opacity: 0.8,
-                        fillColor: '#ff7800',  // Cor de preenchimento
-                        fillOpacity: 0.2       // Transparência do preenchimento
+                        fillColor: '#ff7800',
+                        fillOpacity: 0.2
                     },
                     onEachFeature: function (feature, layer) {
-                        // Se houver propriedades no GeoJSON, mostra num pop-up simples
                         if (feature.properties && feature.properties.nome) {
                             layer.bindPopup('Área: ' + feature.properties.nome);
                         }
                     }
                 }).addTo(map);
-
-                // Opcional: ajustar o zoom do mapa automaticamente para os limites da área do GeoJSON
-                // map.fitBounds(camadaGeoJson.getBounds());
             })
-            .catch(error => console.error('Erro ao carregar o ficheiro area.geojson:', error));
+            .catch(error => console.warn('Aviso do GeoJSON: Verifique se está a usar um servidor local (Live Server). Detalhes:', error));
     </script>
 
 </body>

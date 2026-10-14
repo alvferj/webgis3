@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGIS - Comparação WMS</title>
+    <title>WebGIS - Comparação WMS com GeoJSON</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.4.0/leaflet-side-by-side.min.css" />
@@ -21,33 +21,60 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.4.0/leaflet-side-by-side.min.js"></script>
 
     <script>
-        var map = L.map('map').setView([-15.7801, -47.9292], 6); // Centralizado no Brasil
+        // Centralizado nas coordenadas solicitadas (-22.1468, -48.9995) com zoom 11
+        var map = L.map('map').setView([-22.1468, -48.9995], 11);
 
-        // Mapa base de fundo
+        // Mapa base de fundo (OpenStreetMap)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 22,
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Camada WMS da Esquerda (Exemplo: IBGE Mosaico ou feições)
-        var wmsEsquerda = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            layers: '0', // Substitua pelo nome da camada do servidor WMS
+        // Camada WMS da Esquerda
+        var wmsEsquerda = L.tileLayer.wms('https://wms.mma.gov.br/geoserver/wms', {
+            layers: 'mma:sua_camada_esquerda_aqui', // Substitua pelo serviço/camada desejada
             format: 'image/png',
             transparent: true,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd'
+            version: '1.3.0',
+            attribution: 'MMA WMS - Esquerda'
         }).addTo(map);
 
-        // Camada WMS da Direita (Exemplo: Outro ano ou outra base WMS)
+        // Camada WMS da Direita
         var wmsDireita = L.tileLayer.wms('https://wms.mma.gov.br/geoserver/wms', {
-            layers: 'mma:sua_camada_aqui', // Substitua pelo serviço WMS desejado
+            layers: 'mma:sua_camada_direita_aqui', // Substitua pelo serviço/camada desejada
             format: 'image/png',
             transparent: true,
-            attribution: 'MMA WMS'
+            version: '1.3.0',
+            attribution: 'MMA WMS - Direita'
         }).addTo(map);
 
         // Ferramenta Swipe para comparar as duas fontes WMS
         L.control.sideBySide(wmsEsquerda, wmsDireita).addTo(map);
+
+        // Função para carregar e adicionar o ficheiro area.geojson ao mapa
+        fetch('area.geojson')
+            .then(response => response.json())
+            .then(data => {
+                var camadaGeoJson = L.geoJSON(data, {
+                    style: {
+                        color: '#ff7800',      // Cor do contorno
+                        weight: 3,             // Espessura da linha
+                        opacity: 0.8,
+                        fillColor: '#ff7800',  // Cor de preenchimento
+                        fillOpacity: 0.2       // Transparência do preenchimento
+                    },
+                    onEachFeature: function (feature, layer) {
+                        // Se houver propriedades no GeoJSON, mostra num pop-up simples
+                        if (feature.properties && feature.properties.nome) {
+                            layer.bindPopup('Área: ' + feature.properties.nome);
+                        }
+                    }
+                }).addTo(map);
+
+                // Opcional: ajustar o zoom do mapa automaticamente para os limites da área do GeoJSON
+                // map.fitBounds(camadaGeoJson.getBounds());
+            })
+            .catch(error => console.error('Erro ao carregar o ficheiro area.geojson:', error));
     </script>
 
 </body>
